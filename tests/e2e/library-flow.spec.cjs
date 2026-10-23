@@ -50,7 +50,8 @@ test('admin completes the seven-screen library flow on desktop', async ({ page }
   await expect(page.getByText('Libro creado.')).toBeVisible()
 
   await page.getByRole('link', { name: 'Prestar' }).click()
-  const memberSelect = page.getByLabel('Socio')
+  // The adjacent search input is also labelled "Buscar socio"; target the dropdown directly.
+  const memberSelect = page.locator('select').first()
   const memberOption = memberSelect.locator('option').filter({ hasText: memberName })
   await expect(memberOption).toHaveCount(1)
   await memberSelect.selectOption(await memberOption.getAttribute('value'))
