@@ -23,7 +23,7 @@ test('admin completes the seven-screen library flow on desktop', async ({ page }
   await page.setViewportSize({ width: 1440, height: 1000 })
   await signIn(page)
   await expect(page.getByRole('heading', { name: 'Catálogo' })).toBeVisible()
-  await expect(page.getByRole('row').nth(1)).toBeVisible()
+  await expect(page.getByRole('row').filter({ hasText: 'Cien años de soledad' })).toBeVisible()
   await page.screenshot({ path: 'test-results/desktop-libros.png', fullPage: true })
 
   const suffix = Date.now().toString()
@@ -37,6 +37,7 @@ test('admin completes the seven-screen library flow on desktop', async ({ page }
   await memberForm.getByLabel('Documento').fill(documentNumber)
   await memberForm.getByRole('button', { name: 'Crear socio' }).click()
   await expect(page.getByText('Socio creado.')).toBeVisible()
+  await expect(page.getByRole('row').filter({ hasText: memberName })).toBeVisible()
   await page.screenshot({ path: 'test-results/desktop-socios.png', fullPage: true })
 
   await page.getByRole('link', { name: 'Catálogo' }).click()
@@ -75,11 +76,11 @@ test('admin completes the seven-screen library flow on desktop', async ({ page }
       await expect(page.getByText('Devolución registrada.')).toBeVisible()
     }
     if (linkName === 'Vencidos') {
-      await expect(page.getByRole('row').nth(1)).toBeVisible()
+      await expect(page.getByRole('row').filter({ hasText: 'Breve historia del tiempo' })).toBeVisible()
     }
     if (linkName === 'Reporte') {
       await page.getByRole('button', { name: 'Generar' }).click()
-      await expect(page.getByText('Ese rango no tiene préstamos.')).toHaveCount(0)
+      await expect(page.getByRole('row').filter({ hasText: bookTitle })).toBeVisible()
     }
     await page.screenshot({ path: `test-results/desktop-${path.slice(1)}.png`, fullPage: true })
   }
@@ -88,11 +89,28 @@ test('admin completes the seven-screen library flow on desktop', async ({ page }
 test('authenticated navigation remains within the viewport on mobile', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 })
   await signIn(page)
+  await expect(page.getByRole('row').filter({ hasText: 'Cien años de soledad' })).toBeVisible()
 
   for (const [linkName, heading, path] of pages) {
     await page.getByRole('link', { name: linkName }).click()
     await expect(page).toHaveURL(new RegExp(`${path}$`))
     await expect(page.getByRole('heading', { name: heading })).toBeVisible()
+    if (linkName === 'Socios') {
+      await expect(page.getByRole('row').filter({ hasText: 'Ana Lucía Pérez' })).toBeVisible()
+    }
+    if (linkName === 'Prestar') {
+      expect(await page.locator('select').first().locator('option').count()).toBeGreaterThan(1)
+    }
+    if (linkName === 'Préstamos') {
+      await expect(page.getByRole('row').filter({ hasText: 'Breve historia del tiempo' })).toBeVisible()
+    }
+    if (linkName === 'Vencidos') {
+      await expect(page.getByRole('row').filter({ hasText: 'Breve historia del tiempo' })).toBeVisible()
+    }
+    if (linkName === 'Reporte') {
+      await page.getByRole('button', { name: 'Generar' }).click()
+      await expect(page.getByRole('row').filter({ hasText: 'Cien años de soledad' })).toBeVisible()
+    }
     const widths = await page.evaluate(() => ({
       viewport: document.documentElement.clientWidth,
       document: document.documentElement.scrollWidth,
