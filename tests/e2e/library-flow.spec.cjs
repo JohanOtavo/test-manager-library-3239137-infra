@@ -99,7 +99,7 @@ test('authenticated navigation remains within the viewport on mobile', async ({ 
       await expect(page.getByRole('row').filter({ hasText: 'Ana Lucía Pérez' })).toBeVisible()
     }
     if (linkName === 'Prestar') {
-      expect(await page.locator('select').first().locator('option').count()).toBeGreaterThan(1)
+      await expect.poll(async () => page.locator('select').first().locator('option').count()).toBeGreaterThan(1)
     }
     if (linkName === 'Préstamos') {
       await expect(page.getByRole('row').filter({ hasText: 'Breve historia del tiempo' })).toBeVisible()
