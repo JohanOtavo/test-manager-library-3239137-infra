@@ -1,0 +1,25 @@
+name: Compose configuration
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    env:
+      DB_DATABASE: library
+      DB_USERNAME: library
+      DB_PASSWORD: ci-only-password
+      JWT_SECRET: ci-only-jwt-secret-at-least-32-characters-long
+      ADMIN_USERNAME: admin
+      ADMIN_PASSWORD: ci-only-admin-password
+      CORS_ORIGIN: http://localhost:5173
+      VITE_API_URL: http://localhost:8000/api/v1
+      DEMO_CLOCK: "false"
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker compose config --quiet
